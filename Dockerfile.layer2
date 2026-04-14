@@ -1,0 +1,80 @@
+# Layer 2: simBench - Molecular simulation and protein structure workflows
+# USER-AGNOSTIC: No user creation — Layer 3 handles user setup.
+
+ARG BASE_IMAGE=bio-bench-base:latest
+FROM ${BASE_IMAGE}
+
+LABEL layer="2"
+LABEL layer.name="sim-bench"
+LABEL layer.version="0.1.0"
+LABEL layer.description="Molecular simulation workbench with Conda-based protein structure and MD tooling"
+
+USER root
+
+ENV CONDA_DIR=/opt/conda
+ENV SIM_ENV=sim
+ENV JUPYTER_TOKEN=simbench
+ENV PATH="${CONDA_DIR}/envs/${SIM_ENV}/bin:${CONDA_DIR}/bin:${PATH}"
+
+# Install a practical sim stack that is buildable in a normal container.
+# Full AlphaFold/ESMFold model weights are intentionally not baked into the image.
+RUN conda install -n base -y -c conda-forge mamba \
+    && mamba create -n "${SIM_ENV}" -y -c conda-forge -c bioconda \
+        python=3.11 \
+        pip \
+        jupyterlab \
+        ipykernel \
+        numpy \
+        scipy \
+        pandas \
+        biopython \
+        matplotlib \
+        seaborn \
+        scikit-learn \
+        requests \
+        tqdm \
+        pyyaml \
+        rich \
+    && mamba install -n "${SIM_ENV}" -y -c conda-forge -c bioconda \
+        openmm \
+        mdtraj \
+        pdbfixer \
+        mmseqs2 \
+        foldseek \
+        hmmer \
+    && conda clean -afy
+
+RUN /opt/conda/envs/${SIM_ENV}/bin/pip install --no-cache-dir \
+        biotite \
+        py3Dmol \
+        fair-esm
+
+# fair-esm requires torch at runtime, but does not pull it in automatically.
+RUN /opt/conda/envs/${SIM_ENV}/bin/pip install --no-cache-dir \
+        --index-url https://download.pytorch.org/whl/cpu \
+        --extra-index-url https://pypi.org/simple \
+        torch
+
+ENV CONDA_DEFAULT_ENV=sim
+ENV CONDA_PREFIX=/opt/conda/envs/sim
+
+RUN /opt/conda/envs/${SIM_ENV}/bin/python -m ipykernel install \
+        --name "${SIM_ENV}" \
+        --prefix "/opt/conda/envs/${SIM_ENV}" \
+    && chown -R root:root "${CONDA_DIR}" \
+    && chmod -R g+rwX "${CONDA_DIR}" \
+    && find "${CONDA_DIR}" -type d -exec chmod g+s {} +
+
+RUN conda config --system --set auto_activate_base false
+
+RUN printf '\n# simBench default environment\nexport CONDA_DEFAULT_ENV="%s"\nconda activate %s >/dev/null 2>&1 || true\n' "${SIM_ENV}" "${SIM_ENV}" >> /etc/skel/.zshrc \
+    && printf '\n# simBench default environment\nexport CONDA_DEFAULT_ENV="%s"\nconda activate %s >/dev/null 2>&1 || true\n' "${SIM_ENV}" "${SIM_ENV}" >> /etc/skel/.bashrc
+
+RUN cat > /etc/profile.d/zz-simbench-conda.sh <<'EOF'
+if [ -f /opt/conda/etc/profile.d/conda.sh ]; then
+    . /opt/conda/etc/profile.d/conda.sh
+    conda activate sim >/dev/null 2>&1 || true
+fi
+EOF
+
+CMD ["sleep", "infinity"]

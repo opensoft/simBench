@@ -1,0 +1,13 @@
+name: bio-benches
+
+services:
+  sim-bench:
+    image: sim-bench:${USER:-brett}
+    container_name: sim-bench
+    command: sleep infinity
+    working_dir: /workspace
+    environment:
+      - JUPYTER_TOKEN=simbench
+      - CONDA_DIR=/opt/conda
+      - CONDA_DEFAULT_ENV=sim
+      - DOCKER_HOST=unix:///var/run/docker.sock

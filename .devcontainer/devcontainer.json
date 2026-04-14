@@ -1,0 +1,73 @@
+{
+    "name": "bioBenches / simBench",
+    "initializeCommand": "bash ${localWorkspaceFolder}/../../scripts/ensure-layer3.sh --base sim-bench:latest --chown /opt/conda",
+    "dockerComposeFile": "docker-compose.yml",
+    "service": "sim-bench",
+    "shutdownAction": "stopCompose",
+    "customizations": {
+        "vscode": {
+            "settings": {
+                "terminal.integrated.defaultProfile.linux": "zsh",
+                "python.defaultInterpreterPath": "/opt/conda/envs/sim/bin/python",
+                "python.terminal.activateEnvironment": true,
+                "jupyter.notebookFileRoot": "/workspace"
+            },
+            "extensions": [
+                "ms-python.python",
+                "ms-python.vscode-pylance",
+                "ms-toolsai.jupyter",
+                "ms-toolsai.jupyter-keymap",
+                "ms-toolsai.jupyter-renderers",
+                "github.copilot",
+                "eamodio.gitlens",
+                "redhat.vscode-yaml"
+            ]
+        }
+    },
+    "containerEnv": {
+        "SHELL": "/bin/zsh",
+        "CONDA_DIR": "/opt/conda",
+        "CONDA_DEFAULT_ENV": "sim",
+        "JUPYTER_TOKEN": "simbench"
+    },
+    "remoteUser": "${localEnv:USER}",
+    "updateRemoteUserUID": false,
+    "workspaceFolder": "/workspace",
+    "mounts": [
+        "source=simbench-zshhistory,target=/home/${localEnv:USER}/.zsh_history,type=volume",
+        "source=${localEnv:HOME}/projects,target=/workspace/projects,type=bind",
+
+        "source=${localEnv:HOME}/.zshrc,target=/home/${localEnv:USER}/.zshrc,type=bind,readonly",
+        "source=${localEnv:HOME}/.oh-my-zsh,target=/home/${localEnv:USER}/.oh-my-zsh,type=bind,readonly",
+        "source=${localEnv:HOME}/.p10k.zsh,target=/home/${localEnv:USER}/.p10k.zsh,type=bind,readonly",
+        "source=${localEnv:HOME}/.bashrc,target=/home/${localEnv:USER}/.bashrc,type=bind,readonly",
+
+        "source=${localEnv:HOME}/.gitconfig,target=/home/${localEnv:USER}/.gitconfig,type=bind,readonly",
+        "source=${localEnv:HOME}/.ssh,target=/home/${localEnv:USER}/.ssh,type=bind,readonly",
+        "source=${localEnv:HOME}/.config/gh,target=/home/${localEnv:USER}/.config/gh,type=bind,readonly",
+
+        "source=${localEnv:HOME}/.claude,target=/home/${localEnv:USER}/.claude,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/.claude.json,target=/home/${localEnv:USER}/.claude.json,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/.codex,target=/home/${localEnv:USER}/.codex,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/.gemini,target=/home/${localEnv:USER}/.gemini,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/.grok,target=/home/${localEnv:USER}/.grok,type=bind,readonly",
+        "source=${localEnv:HOME}/.copilot-cli,target=/home/${localEnv:USER}/.copilot-cli,type=bind,readonly",
+
+        "source=/var/run/docker.sock,target=/var/run/docker.sock,type=bind"
+    ],
+    "forwardPorts": [8888, 6006, 8050],
+    "portsAttributes": {
+        "8888": {
+            "label": "Jupyter",
+            "onAutoForward": "notify"
+        },
+        "6006": {
+            "label": "TensorBoard",
+            "onAutoForward": "notify"
+        },
+        "8050": {
+            "label": "Dash/Plotly",
+            "onAutoForward": "notify"
+        }
+    }
+}
