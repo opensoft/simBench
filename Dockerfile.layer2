@@ -18,8 +18,8 @@ ENV PATH="${CONDA_DIR}/envs/${SIM_ENV}/bin:${CONDA_DIR}/bin:${PATH}"
 
 # Install a practical sim stack that is buildable in a normal container.
 # Full AlphaFold/ESMFold model weights are intentionally not baked into the image.
-RUN conda install -n base -y -c conda-forge mamba \
-    && mamba create -n "${SIM_ENV}" -y -c conda-forge -c bioconda \
+RUN conda install -n base -y --override-channels -c conda-forge mamba \
+    && mamba create -n "${SIM_ENV}" -y --override-channels -c conda-forge -c bioconda \
         python=3.11 \
         pip \
         jupyterlab \
@@ -35,7 +35,7 @@ RUN conda install -n base -y -c conda-forge mamba \
         tqdm \
         pyyaml \
         rich \
-    && mamba install -n "${SIM_ENV}" -y -c conda-forge -c bioconda \
+    && mamba install -n "${SIM_ENV}" -y --override-channels -c conda-forge -c bioconda \
         openmm \
         mdtraj \
         pdbfixer \
