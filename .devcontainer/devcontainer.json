@@ -1,6 +1,6 @@
 {
     "name": "bioBenches / simBench",
-    "initializeCommand": "bash ${localWorkspaceFolder}/../../scripts/prepare-bench-start.sh --container sim-bench --base sim-bench:latest --user ${localEnv:USER} --chown /opt/conda --project bio-benches --service sim-bench",
+    "initializeCommand": "mkdir -p \"${localEnv:HOME}/.claude-profiles\" && bash \"${localWorkspaceFolder}/../../scripts/prepare-bench-start.sh\" --container sim-bench --base sim-bench:latest --user \"${localEnv:USER}\" --chown /opt/conda --project bio-benches --service sim-bench",
     "dockerComposeFile": "docker-compose.yml",
     "service": "sim-bench",
     "shutdownAction": "stopCompose",
