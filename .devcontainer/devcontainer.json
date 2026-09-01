@@ -1,6 +1,6 @@
 {
     "name": "bioBenches / simBench",
-    "initializeCommand": "bash ${localWorkspaceFolder}/../../scripts/ensure-layer3.sh --base sim-bench:latest --chown /opt/conda",
+    "initializeCommand": "mkdir -p \"${localEnv:HOME}/.claude-profiles\" && bash \"${localWorkspaceFolder}/../../scripts/prepare-bench-start.sh\" --container sim-bench --base sim-bench:latest --user \"${localEnv:USER}\" --chown /opt/conda --project bio-benches --service sim-bench",
     "dockerComposeFile": "docker-compose.yml",
     "service": "sim-bench",
     "shutdownAction": "stopCompose",
@@ -48,6 +48,7 @@
 
         "source=${localEnv:HOME}/.claude,target=/home/${localEnv:USER}/.claude,type=bind,consistency=cached",
         "source=${localEnv:HOME}/.claude.json,target=/home/${localEnv:USER}/.claude.json,type=bind,consistency=cached",
+        "source=${localEnv:HOME}/.claude-profiles,target=/home/${localEnv:USER}/.claude-profiles,type=bind,consistency=cached",
         "source=${localEnv:HOME}/.codex,target=/home/${localEnv:USER}/.codex,type=bind,consistency=cached",
         "source=${localEnv:HOME}/.config/ledgerlinc/secrets,target=/home/${localEnv:USER}/.config/ledgerlinc/secrets,type=bind,readonly",
         "source=${localEnv:HOME}/.gemini,target=/home/${localEnv:USER}/.gemini,type=bind,consistency=cached",
