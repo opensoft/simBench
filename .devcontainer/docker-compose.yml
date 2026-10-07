@@ -2,6 +2,7 @@ name: bio-benches
 
 services:
   sim-bench:
+    init: true
     image: sim-bench:${USER:-brett}
     container_name: sim-bench
     command: sleep infinity
